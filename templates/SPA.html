@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPA</title>
+    <link href="{{url_for('static', filename='into_csv.css')}}" rel="stylesheet">
+</head>
+<body>
+    <div id='login'>
+        <form>
+            <p>Username <input type="text" id='username' name="uname"></p>
+            <p>Password <input type="password" id="password" name="pword"></p>
+            <button type="submit" id="btn">Login</button>
+        </form>
+    </div>
+    <div id="details">
+        <form>
+            <p>Name <input type="text" id="name" name='name'></p>
+            <p>Comments <input type="text" id="comments" name='comments'></p>
+            <button type="submit" id="btn1">submit</button>
+        </form>
+        <table id="display">
+            <tr>
+                <td>Name</td>
+                <td>Comments</td>
+            </tr>
+            <output id="csv"></output>
+            
+
+        </table>
+    </div>
+
+    <script>
+        document.getElementById("btn").addEventListener("click", getValue); //login page
+
+        function getValue(e){
+            e.preventDefault();
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open("POST", "/login", true); 
+            
+            xhr.onload = function(e){
+                var name = document.getElementById('username').value;
+                var password = document.getElementById('password').value;
+                console.log(name, password);
+            };
+
+            xhr.send(JSON.stringify(name, password));
+
+            var login = document.getElementById("login").style.display='none';
+            var details = document.getElementById("details").style.display='block';
+
+           document.getElementById("csv").addEventListener("load", getCSV);
+
+           function getCSV(){
+                var rawFile = new XMLHttpRequest();
+                rawFile.open("GET", 'newfile.csv', true);
+                rawFile.onreadystatechange = function ()
+                    {
+                        if(rawFile.readyState === 4) {
+                            if(rawFile.status === 200 || rawFile.status == 0){
+                                var allText = rawFile.responseText;
+                                document.getElementById("csv").innerHTML=allText;
+                                };
+                            };
+                        };
+                        rawFile.send(null);
+                    };
+           
+            document.getElementById("btn1").addEventListener("click", showValue); //input page
+
+            function showValue(e){
+                e.preventDefault();
+
+                var csv = document.getElementById("csv").addEventListener("change", getCSV);
+
+                var xhr = new XMLHttpRequest();
+        
+                var name = document.getElementById("name").value;
+                var comment = document.getElementById("comments").value;
+        
+                xhr.open("POST", '/inputs', true);
+        
+                xhr.send(JSON.stringify(name, comment));
+        
+                var row = 1;
+                var table =  document.getElementById("display");
+                var newRow = table.insertRow(row)
+        
+                var cell1 = newRow.insertCell(0);
+                var cell2 = newRow.insertCell(1);
+        
+                cell1.innerHTML = name;
+                cell2.innerHTML = comment;
+        
+                row++;
+        };
+    };
+    </script>
+    
+</body>
+</html>
